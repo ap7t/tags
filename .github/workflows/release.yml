@@ -31,4 +31,4 @@ jobs:
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $NF+=1; print $0}')" 
               git tag -a "$NEW_TAG" -m "$CHANGES"
           fi
-          # git push --tags
+          git push --tags
