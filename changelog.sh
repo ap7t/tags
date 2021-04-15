@@ -32,7 +32,7 @@ function get_changes() {
     # Get the last 40 PRs, in the format num=hash=title
     PULL_REQUESTS="$(hub pr list -s merged -o updated -L 40 -f '%I!;%sm!;%t!;%U%n')"
     # Filter to PRs which were merged in the last release. Exclude PRs starting with 'release'
-    PULL_REQUESTS="$(echo "$PULL_REQUESTS" | grep "$MERGE_HASHES" | grep -vi '!;deploy' | grep -vi '!;tagging@')"
+    PULL_REQUESTS="$(echo "$PULL_REQUESTS" | grep "$MERGE_HASHES" | grep -vi '!;deploy' | grep -vi '!;tags@')"
     # Format the PRs into markdown changes, in the format "title [#num](pr-url)"
     CHANGES="$(echo "$PULL_REQUESTS" | sed -E "s/([0-9]*)!;([0-9a-f]*)!;(.*)!;(.*)/* \3 [#\1](\4)/")"
     # Output the changes if there are any
