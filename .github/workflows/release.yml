@@ -1,0 +1,35 @@
+name: Test Tagging
+
+# on: pull_request
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+          
+      - run: |
+          CHANGES="$(GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ./changelog.sh)"
+          git fetch --unshallow --tags
+          LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
+          # exit code 1 if feature not found which breaks the workflow hence || true
+          FEATURE="$(echo "${CHANGES}" | grep -ic 'feature' || true)" 
+          # need just for my test repo
+          git config --global user.email "adampurcell7t@gmail.com" 
+          # need just for my test repo 
+          git config --global user.name "Adam Purcell"
+          git checkout master
+          if [ "$FEATURE" -gt 0 ]; then
+              NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $(NF-1)+=1; $NF=0; print $0}')"
+
+              git tag -a "$NEW_TAG" -m "$CHANGES"
+          else
+              NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $NF+=1; print $0}')" 
+              git tag -a "$NEW_TAG" -m "$CHANGES"
+          fi
+          git push --tags
