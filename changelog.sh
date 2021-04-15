@@ -21,6 +21,26 @@ function get_changes_between_tags() {
     fi
 }
 
+# # Get the changes for branch:develop based on the most recent tag.
+# function get_changes() {
+#     git fetch origin &> /dev/null
+#     # Get lastest tag currenty in production. Help find latest changes based on this tag.
+#     LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
+#     # Find the merge commit hashes between the tag and head.
+#     MERGE_HASHES="$(git log $LATEST_TAG..HEAD --pretty='format:%H')"
+#     echo "$MERGE_HASHES"
+#     # Get the last 40 PRs, in the format num=hash=title
+#     PULL_REQUESTS="$(hub pr list -s merged -o updated -L 40 -f '%I!;%sm!;%t!;%U%n')"
+#     # Filter to PRs which were merged in the last release. Exclude PRs starting with 'release'
+#     PULL_REQUESTS="$(echo "$PULL_REQUESTS" | grep "$MERGE_HASHES" | grep -vi '!;deploy' | grep -vi '!;tags@')"
+#     # Format the PRs into markdown changes, in the format "title [#num](pr-url)"
+#     CHANGES="$(echo "$PULL_REQUESTS" | sed -E "s/([0-9]*)!;([0-9a-f]*)!;(.*)!;(.*)/* \3 [#\1](\4)/")"
+#     # Output the changes if there are any
+#     if [ -n "$CHANGES" ]; then
+#         echo "$CHANGES"
+#     fi
+# }
+
 # Get the changes for branch:develop based on the most recent tag.
 function get_changes() {
     git fetch origin &> /dev/null
@@ -28,16 +48,17 @@ function get_changes() {
     LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
     # Find the merge commit hashes between the tag and head.
     MERGE_HASHES="$(git log $LATEST_TAG..HEAD --pretty='format:%H')"
-    echo "$MERGE_HASHES"
-    # Get the last 40 PRs, in the format num=hash=title
-    PULL_REQUESTS="$(hub pr list -s merged -o updated -L 40 -f '%I!;%sm!;%t!;%U%n')"
-    # Filter to PRs which were merged in the last release. Exclude PRs starting with 'release'
-    PULL_REQUESTS="$(echo "$PULL_REQUESTS" | grep "$MERGE_HASHES" | grep -vi '!;deploy' | grep -vi '!;tags@')"
-    # Format the PRs into markdown changes, in the format "title [#num](pr-url)"
-    CHANGES="$(echo "$PULL_REQUESTS" | sed -E "s/([0-9]*)!;([0-9a-f]*)!;(.*)!;(.*)/* \3 [#\1](\4)/")"
-    # Output the changes if there are any
-    if [ -n "$CHANGES" ]; then
-        echo "$CHANGES"
+    if [ -n "$MERGE_HASHES" ]; then
+        # Get the last 40 PRs, in the format num=hash=title
+        PULL_REQUESTS="$(hub pr list -s merged -o updated -L 40 -f '%I!;%sm!;%t!;%U%n')"
+        # Filter to PRs which were merged in the last release. Exclude PRs starting with 'release'
+        PULL_REQUESTS="$(echo "$PULL_REQUESTS" | grep "$MERGE_HASHES" | grep -vi '!;deploy' | grep -vi '!;projectsapigo@')"
+        # Format the PRs into markdown changes, in the format "title [#num](pr-url)"
+        CHANGES="$(echo "$PULL_REQUESTS" | sed -E "s/([0-9]*)!;([0-9a-f]*)!;(.*)!;(.*)/* \3 [#\1](\4)/")"
+        # Output the changes if there are any
+        if [ -n "$CHANGES" ]; then
+            echo "$CHANGES"
+        fi
     fi
 }
 
