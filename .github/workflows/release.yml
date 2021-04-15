@@ -15,6 +15,7 @@ jobs:
           
       - run: |
           CHANGES="$(GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ./changelog.sh)"
+          echo "$CHANGES"
           git fetch --unshallow --tags
           LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
           # exit code 1 if feature not found which breaks the workflow hence || true
@@ -30,4 +31,4 @@ jobs:
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $NF+=1; print $0}')" 
               git tag -a "$NEW_TAG" -m "$CHANGES"
           fi
-          git push --tags
+          # git push --tags
