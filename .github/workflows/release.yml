@@ -4,7 +4,7 @@ name: Test Tagging
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
   release:
@@ -26,7 +26,6 @@ jobs:
           git checkout master
           if [ "$FEATURE" -gt 0 ]; then
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $(NF-1)+=1; $NF=0; print $0}')"
-
               git tag -a "$NEW_TAG" -m "$CHANGES"
           else
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $NF+=1; print $0}')" 
