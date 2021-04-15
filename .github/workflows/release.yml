@@ -14,8 +14,6 @@ jobs:
       - uses: actions/checkout@v2
           
       - run: |
-          git fetch origin &> /dev/null
-          git checkout develop
           CHANGES="$(GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ./changelog.sh)"
           git fetch --unshallow --tags
           LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
@@ -28,7 +26,6 @@ jobs:
           git checkout master
           if [ "$FEATURE" -gt 0 ]; then
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $(NF-1)+=1; $NF=0; print $0}')"
-
               git tag -a "$NEW_TAG" -m "$CHANGES"
           else
               NEW_TAG="$(echo "$LATEST_TAG" | awk -F. '{OFS="."; $NF+=1; print $0}')" 
