@@ -14,9 +14,9 @@ jobs:
       - uses: actions/checkout@v2
           
       - run: |
+          git fetch --unshallow --tags
           CHANGES="$(GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ./changelog.sh)"
           echo "$CHANGES"
-          git fetch --unshallow --tags
           LATEST_TAG="$(git tag --merged origin/master --sort=creatordate | tail -n 1)"
           # exit code 1 if feature not found which breaks the workflow hence || true
           FEATURE="$(echo "${CHANGES}" | grep -ic 'feature' || true)" 
